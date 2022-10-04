@@ -1,12 +1,11 @@
 //Copiamos la ruta de donde saldran los gatitos
-const API_KEY = 'live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN';
-const URL_RANDOM = 'https://api.thecatapi.com/v1/images/search?limit=2&api_key=live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN';
+const URL_RANDOM = 'https://api.thecatapi.com/v1/images/search?limit=2';
 
-const API_URL_FAVORITES = 'https://api.thecatapi.com/v1/favourites?api_key=live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN';
+const API_URL_FAVORITES = 'https://api.thecatapi.com/v1/favourites';
 
-
+const API_URL_UPLOAD = 'https://api.thecatapi.com/v1/images/upload';
 //como la api para sacar michis de favoritos es un endpoint dinamico entonces trabajamos la url como una arronw function y le agregamos el id que es lo dinamico, dde esta manera:
-const API_URL_DELETE_FAVORITES = (id) => `https://api.thecatapi.com/v1/favourites/${id}?api_key=live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN`
+const API_URL_DELETE_FAVORITES = (id) => `https://api.thecatapi.com/v1/favourites/${id}`
 
 const spanError = document.getElementById("error")
 //fecth nos devuelve una promesa que podemos resolver con el metodo then
@@ -50,7 +49,13 @@ async function loadRandomMichis(){
 
 async function loadFavouriteMichis(){
     //res llama a la URL DE fetch
-    const res = await fetch(API_URL_FAVORITES);
+    const res = await fetch(API_URL_FAVORITES, {
+      method: 'GET',
+      //estamos trabajando aqui usando headers authenticationf
+      headers: {
+        'X-API-KEY': 'live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN',
+      },
+    });
     //data llama a el json dela respuesta res
     const data = await res.json();
     console.log('favorites data')
@@ -93,6 +98,8 @@ async function saveFavouriteMichi(id) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+
+        'X-API-KEY': 'live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN',
       },
        // por defecto siempre nos pide un header y un body, es decir la informacion como tal like en html
         //aqui colocamos cual es la imagen que queremos guardar en favorito
@@ -118,6 +125,9 @@ async function deleteFavouriteMichi(id){
     //Aqui le enviamo el metodo que nosotro necesitamos para nuestra solicitud, por defecto si no enviamos nada sera un Get
         //hay que especificarlo manualmente
       method: 'DELETE',
+      headers: {
+        'X-API-KEY': 'live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN',
+      },
     });
     const data = await res.json();
 
@@ -128,6 +138,32 @@ async function deleteFavouriteMichi(id){
       loadFavouriteMichis();
       
     }
+}
+
+async function uploadMichiPhoto(){
+  const form = document.getElementById('uploadingForm')
+  const formData = new FormData(form);
+
+  console.log(formData.get('file'))
+
+  const res = await fetch(API_URL_UPLOAD, {
+    method: 'POST',
+    headers: {
+      //'Content-Type': 'multipart/form-data',
+      'X-API-KEY': 'live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN',
+    },
+    body: formData,
+  })
+  const data = await res.json();
+
+  if (res.status !== 201){
+    spanError.innerHTML = "Hubo un error:" + res.status + data.message;
+  } else {
+    console.log('foto de michi subida')
+    console.log({data})
+    console.log(data.url)
+    saveFavouriteMichi(data.id);
+  }
 }
 
 
