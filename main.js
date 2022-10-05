@@ -1,3 +1,12 @@
+
+//aqui creamos una instancia de axios
+const api = axios.create({
+  baseURL: 'https://api.thecatapi.com/v1'
+});
+
+//con esto podemor alterar las instancias creadas por defaults de axios
+api.defaults.headers.common['X-API-KEY'] = 'live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN'
+
 //Copiamos la ruta de donde saldran los gatitos
 const URL_RANDOM = 'https://api.thecatapi.com/v1/images/search?limit=2';
 
@@ -92,28 +101,34 @@ async function loadFavouriteMichis(){
 }
 
 async function saveFavouriteMichi(id) {
-    const res = await fetch(API_URL_FAVORITES, {
+    //DE ESTA FORMA TRABAJAMOS CON AXIOS
+    const {data, status} = await api.post('/favourites',{
+      image_id: id,
+    });
+
+
+
+    //DE ESTA FORMA TRABAJAMOS CON FETCH
+    // const res = await fetch(API_URL_FAVORITES, {
     //Aqui le enviamo el metodo que nosotro necesitamos para nuestra solicitud, por defecto si no enviamos nada sera un Get
         //hay que especificarlo manualmente
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+      // method: 'POST',
+      // headers: {
+      //   'Content-Type': 'application/json',
 
-        'X-API-KEY': 'live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN',
-      },
+      //   'X-API-KEY': 'live_KnJzFbnChqNJHPlp0XlYIBqb8Xi6RonHByfVZdYI6zhtPxouuwNYhWuzuvEEPynN',
+      // },
        // por defecto siempre nos pide un header y un body, es decir la informacion como tal like en html
         //aqui colocamos cual es la imagen que queremos guardar en favorito
-      body: JSON.stringify({
-        image_id: id
-      }),
-    });
-    const data = await res.json();
+    //   body: JSON.stringify({
+    //     image_id: id
+    //   }),
+    // });
+    // const data = await res.json();
 
-    console.log('Save')
-    console.log(res)
 
-    if (res.status !== 200) {
-      spanError.innerHTML = "Hubo un error: " + res.status + data.message;
+    if (status !== 200) {
+      spanError.innerHTML = "Hubo un error: " + status + data.message;
     } else {
       console.log('Michi Guardado en favoritos')
       loadFavouriteMichis();
